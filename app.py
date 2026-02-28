@@ -5,11 +5,55 @@ import extra_streamlit_components as stx
 import streamlit as st
 import requests
 import json
+import uuid
+import re
+
+# --- Helper for Rendering Content with Mermaid ---
+def render_content(content):
+    """
+    Renders markdown content with Mermaid support.
+    """
+    if "```mermaid" not in content:
+        st.markdown(content)
+        return
+
+    # Split content by mermaid blocks
+    pattern = r"```mermaid\b(.*?)\n?```"
+    parts = re.split(pattern, content, flags=re.DOTALL)
+    
+    for i, part in enumerate(parts):
+        if i % 2 == 0:
+            # Markdown part
+            if part.strip():
+                st.markdown(part)
+        else:
+            # Mermaid part
+            mermaid_code = part.strip()
+            if mermaid_code:
+                # Use a unique key for each component
+                st.components.v1.html(
+                    f"""
+                    <div class="mermaid" style="display: flex; justify-content: center;">
+                        {mermaid_code}
+                    </div>
+                    <script type="module">
+                        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+                        mermaid.initialize({{ 
+                            startOnLoad: true,
+                            theme: 'default',
+                            securityLevel: 'loose',
+                        }});
+                    </script>
+                    """,
+                    height=400,
+                    scrolling=True
+                )
+
 
 # --- Configuration & Metadata ---
 VERSION = "v0.4.3"
 AUTHOR = "Tony Cheng (tony.pig@gmail.com)"
-DEFAULT_SYSTEM_PROMPT = "你是一個專業助手。請務必使用 **繁體中文** ，以及**台灣當地**的語調和慣用語來進行回答，愈接地氣愈好。絕對禁用簡體字。"
+DEFAULT_SYSTEM_PROMPT = "你是一個專業助手。請務必使用 **繁體中文** ，以及**台灣當地**的語調和慣用語來進行回答，愈接地氣愈好。絕對禁用簡體字。此外，當你需要解釋流程、結構或時序時，請盡量使用 Mermaid 語法產生圖表（例如：graph TD, sequenceDiagram 等），並將其置於 ```mermaid 區塊中。"
 
 st.set_page_config(page_title="DeepSeek & Llama Chat", page_icon="🤖", layout="wide")
 
@@ -266,8 +310,8 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         if message.get("thought"):
             with st.expander("💭 思考過程 (已存檔)", expanded=False):
-                st.markdown(message["thought"])
-        st.markdown(message["content"])
+                render_content(message["thought"])
+        render_content(message["content"])
 
 # Function to query Ollama (Streaming)
 def generate_response(messages):
@@ -357,7 +401,8 @@ if st.session_state.is_generating and st.session_state.messages and st.session_s
                     has_started = True
             
             status.update(label="回覆完成" if not st.session_state.get("stop_gen", False) else "已停止", state="complete")
-            response_placeholder.markdown(actual_response)
+            with response_placeholder.container():
+                render_content(actual_response)
             
             # 儲存對話
             st.session_state.messages.append({
