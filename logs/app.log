@@ -126,3 +126,342 @@ streamlit.errors.StreamlitDuplicateElementKey: There are multiple elements with 
   Network URL: http://172.20.0.3:8501
   External URL: http://122.116.18.33:8501
 
+Traceback (most recent call last):
+  File "/app/app.py", line 100, in render_content
+    exec(exec_code, namespace)
+  File "<string>", line 16, in <module>
+AttributeError: module 'graphviz' has no attribute 'to_png'
+
+2026-03-01 06:22:43.973 "server.folderWatcherType" is not a valid config option. If you previously had this config option set, it may have been removed.
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://172.20.0.3:8501
+  External URL: http://122.116.18.33:8501
+
+
+[OLLAMA_CALL] Model: gemma:7b URL: http://ollama:11434/api/chat
+
+--- [EXECUTION ERROR] ---
+Traceback (most recent call last):
+  File "/app/app.py", line 111, in render_content
+    exec(exec_code, namespace)
+  File "<string>", line 19, in <module>
+AttributeError: module 'streamlit' has no attribute 'graphviz'
+
+------------------------
+
+--- [EXECUTION ERROR] ---
+Traceback (most recent call last):
+  File "/app/app.py", line 111, in render_content
+    exec(exec_code, namespace)
+  File "<string>", line 19, in <module>
+AttributeError: module 'streamlit' has no attribute 'graphviz'
+
+------------------------
+
+
+
+[OLLAMA_CALL] Model: gemma:7b URL: http://ollama:11434/api/chat
+
+--- [EXECUTION ERROR] ---
+Traceback (most recent call last):
+  File "/app/app.py", line 111, in render_content
+    exec(exec_code, namespace)
+  File "<string>", line 10
+    st.image(graphviz
+            ^
+SyntaxError: '(' was never closed
+
+------------------------
+
+
+--- [EXECUTION ERROR] ---
+Traceback (most recent call last):
+  File "/app/app.py", line 111, in render_content
+    exec(exec_code, namespace)
+  File "<string>", line 10
+    st.image(graphviz
+            ^
+SyntaxError: '(' was never closed
+
+------------------------
+
+
+[OLLAMA_CALL] Model: ministral-3:3b URL: http://ollama:11434/api/chat
+
+--- [EXECUTION ERROR] ---
+Traceback (most recent call last):
+  File "/app/app.py", line 111, in render_content
+    exec(exec_code, namespace)
+  File "<string>", line 24
+SyntaxError: 'return' outside function
+
+------------------------
+
+2026-03-01 06:54:14.192 "server.folderWatcherType" is not a valid config option. If you previously had this config option set, it may have been removed.
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://172.20.0.3:8501
+  External URL: http://122.116.18.33:8501
+
+2026-03-01 06:54:18.952 Script compilation error
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 591, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.10/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+  File "/app/app.py", line 234
+    if ct: f_actual += ct; with msg_area.container(): render_content(f_actual, is_streaming=True)
+                           ^^^^
+SyntaxError: invalid syntax
+2026-03-01 06:54:19.002 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-03-01 06:54:19.000 Script compilation error
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 591, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.10/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+  File "/app/app.py", line 234
+    if ct: f_actual += ct; with msg_area.container(): render_content(f_actual, is_streaming=True)
+                           ^^^^
+SyntaxError: invalid syntax
+2026-03-01 06:54:19.004 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-03-01 06:58:52.620 "server.folderWatcherType" is not a valid config option. If you previously had this config option set, it may have been removed.
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://172.20.0.3:8501
+  External URL: http://122.116.18.33:8501
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/urllib3/connectionpool.py", line 534, in _make_request
+    response = conn.getresponse()
+  File "/usr/local/lib/python3.10/site-packages/urllib3/connection.py", line 571, in getresponse
+    httplib_response = super().getresponse()
+  File "/usr/local/lib/python3.10/http/client.py", line 1375, in getresponse
+    response.begin()
+  File "/usr/local/lib/python3.10/http/client.py", line 318, in begin
+    version, status, reason = self._read_status()
+  File "/usr/local/lib/python3.10/http/client.py", line 279, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+  File "/usr/local/lib/python3.10/socket.py", line 717, in readinto
+    return self._sock.recv_into(b)
+TimeoutError: timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/requests/adapters.py", line 644, in send
+    resp = conn.urlopen(
+  File "/usr/local/lib/python3.10/site-packages/urllib3/connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+  File "/usr/local/lib/python3.10/site-packages/urllib3/util/retry.py", line 490, in increment
+    raise reraise(type(error), error, _stacktrace)
+  File "/usr/local/lib/python3.10/site-packages/urllib3/util/util.py", line 39, in reraise
+    raise value
+  File "/usr/local/lib/python3.10/site-packages/urllib3/connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+  File "/usr/local/lib/python3.10/site-packages/urllib3/connectionpool.py", line 536, in _make_request
+    self._raise_timeout(err=e, url=url, timeout_value=read_timeout)
+  File "/usr/local/lib/python3.10/site-packages/urllib3/connectionpool.py", line 367, in _raise_timeout
+    raise ReadTimeoutError(
+urllib3.exceptions.ReadTimeoutError: HTTPConnectionPool(host='ollama', port=11434): Read timed out. (read timeout=60)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/app.py", line 224, in <module>
+    with requests.post(f"{url}/api/chat", json={"model": sel_model, "messages": msgs, "stream": True}, stream=True, timeout=60) as r:
+  File "/usr/local/lib/python3.10/site-packages/requests/api.py", line 115, in post
+    return request("post", url, data=data, json=json, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/usr/local/lib/python3.10/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/requests/adapters.py", line 690, in send
+    raise ReadTimeout(e, request=request)
+requests.exceptions.ReadTimeout: HTTPConnectionPool(host='ollama', port=11434): Read timed out. (read timeout=60)
+
+2026-03-01 07:41:51.797 "server.folderWatcherType" is not a valid config option. If you previously had this config option set, it may have been removed.
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://172.20.0.3:8501
+  External URL: http://122.116.18.33:8501
+
+2026-03-01 07:41:52.637 Script compilation error
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 591, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.10/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+  File "/app/app.py", line 227
+    if ct: f_actual += ct; with msg_area.container(): render_content(f_actual, is_streaming=True)
+                           ^^^^
+SyntaxError: invalid syntax
+2026-03-01 07:41:52.639 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-03-01 07:41:56.966 Script compilation error
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 591, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.10/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+  File "/app/app.py", line 227
+    if ct: f_actual += ct; with msg_area.container(): render_content(f_actual, is_streaming=True)
+                           ^^^^
+SyntaxError: invalid syntax
+2026-03-01 07:41:56.966 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-03-01 07:43:11.633 "server.folderWatcherType" is not a valid config option. If you previously had this config option set, it may have been removed.
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://172.20.0.3:8501
+  External URL: http://122.116.18.33:8501
+
+2026-03-01 07:44:45.340 "server.folderWatcherType" is not a valid config option. If you previously had this config option set, it may have been removed.
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://172.20.0.3:8501
+  External URL: http://122.116.18.33:8501
+
+Traceback (most recent call last):
+  File "/app/app.py", line 237, in <module>
+    print(f"[OLLAMA_CALL] Model: {sel_model} Time: {datetime.now()}")
+AttributeError: module 'datetime' has no attribute 'now'
+
+Traceback (most recent call last):
+  File "/app/app.py", line 237, in <module>
+    print(f"[OLLAMA_CALL] Model: {sel_model} Time: {datetime.now()}")
+AttributeError: module 'datetime' has no attribute 'now'
+
+Traceback (most recent call last):
+  File "/app/app.py", line 237, in <module>
+    print(f"[OLLAMA_CALL] Model: {sel_model} Time: {datetime.now()}")
+AttributeError: module 'datetime' has no attribute 'now'
+
+2026-03-01 07:46:46.442 "server.folderWatcherType" is not a valid config option. If you previously had this config option set, it may have been removed.
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://172.20.0.3:8501
+  External URL: http://122.116.18.33:8501
+
+[OLLAMA_CALL] Model: qwen2.5vl:7b Time: 2026-03-01 07:47:00.784146
+Traceback (most recent call last):
+  File "/app/app.py", line 232, in <module>
+    if r.status_code != 200: st.error(f"API 錯誤 ({r.status_code}): {r.text}"); r.raise_for_status()
+  File "/usr/local/lib/python3.10/site-packages/requests/models.py", line 1026, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 500 Server Error: Internal Server Error for url: http://ollama:11434/api/chat
+
+[OLLAMA_CALL] qwen2.5vl:7b @ 2026-03-01 07:48:07.717256
+[OLLAMA_500] model requires more system memory (12.5 GiB) than is available (8.5 GiB)
+2026-03-01 07:52:40.162 "server.folderWatcherType" is not a valid config option. If you previously had this config option set, it may have been removed.
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://172.20.0.3:8501
+  External URL: http://122.116.18.33:8501
+
+[OLLAMA_CALL] qwen2.5vl:7b @ 2026-03-01 07:53:18.216710
+[OLLAMA_500] model requires more system memory (12.5 GiB) than is available (8.6 GiB)
+2026-03-01 08:05:35.904 "server.folderWatcherType" is not a valid config option. If you previously had this config option set, it may have been removed.
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://172.20.0.3:8501
+  External URL: http://122.116.18.33:8501
+
+2026-03-01 08:05:36.728 Script compilation error
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 591, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.10/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+  File "/app/app.py", line 245
+    if ct: f_actual += ct; with msg_area.container(): render_content(f_actual, is_streaming=True)
+                           ^^^^
+SyntaxError: invalid syntax
+2026-03-01 08:05:36.733 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-03-01 08:06:41.836 "server.folderWatcherType" is not a valid config option. If you previously had this config option set, it may have been removed.
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://172.20.0.3:8501
+  External URL: http://122.116.18.33:8501
+
+[OLLAMA_CALL] qwen2.5vl:7b @ 2026-03-01 08:07:01.512920
+Traceback (most recent call last):
+  File "/app/app.py", line 236, in <module>
+    st.error(f"❌ Ollama 內部錯誤: {err}"); r.raise_for_status()
+  File "/usr/local/lib/python3.10/site-packages/requests/models.py", line 1026, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 500 Server Error: Internal Server Error for url: http://ollama:11434/api/chat
+
+[OLLAMA_CALL] gemma3:4b @ 2026-03-01 08:11:52.836611
+[OLLAMA_CALL] gemma3:4b @ 2026-03-01 08:20:00.991577
+2026-03-01 09:05:18.346 Uncaught app execution
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 129, in exec_func_with_error_handling
+    result = func()
+  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 689, in code_to_exec
+    exec(code, module.__dict__)  # noqa: S102
+  File "/app/app.py", line 188, in <module>
+    if st.button("🚪"): cookie_manager.delete("current_user"); st.session_state.password_correct = False; st.rerun()
+  File "/usr/local/lib/python3.10/site-packages/extra_streamlit_components/CookieManager/__init__.py", line 111, in delete
+    del self.cookies[cookie]
+KeyError: 'current_user'
+2026-03-01 09:05:20.530 Uncaught app execution
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 129, in exec_func_with_error_handling
+    result = func()
+  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 689, in code_to_exec
+    exec(code, module.__dict__)  # noqa: S102
+  File "/app/app.py", line 188, in <module>
+    if st.button("🚪"): cookie_manager.delete("current_user"); st.session_state.password_correct = False; st.rerun()
+  File "/usr/local/lib/python3.10/site-packages/extra_streamlit_components/CookieManager/__init__.py", line 111, in delete
+    del self.cookies[cookie]
+KeyError: 'current_user'
+2026-03-01 09:09:03.596 "server.folderWatcherType" is not a valid config option. If you previously had this config option set, it may have been removed.
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://172.20.0.3:8501
+  External URL: http://122.116.18.33:8501
+
