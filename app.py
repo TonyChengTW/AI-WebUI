@@ -13,49 +13,62 @@ import io
 import hashlib
 import textwrap
 import pandas as pd
+import gc
+import sys
+import traceback
 from PyPDF2 import PdfReader
 from docx import Document
 
-# Force non-interactive backend for server stability
+# v1.4.9: History Migration Fix & Stability
 matplotlib.use('Agg')
 
 # --- Header & Initialization ---
 st.set_page_config(page_title="AI 小幫手", page_icon="🤖", layout="wide")
 
 TITLE_HTML = """
+<style>
+    .stCodeBlock code { font-family: 'Fira Code', 'Monaco', monospace !important; font-size: 0.9rem !important; }
+    .stCodeBlock div[data-testid="stCodeBlockLineNumber"] { min-width: 2.5em !important; }
+</style>
 <div id="main-header" style="padding: 10px 0px; margin-bottom: 20px; border-bottom: 1px solid #444;">
     <h1 style="margin: 0; font-size: 2.5rem;">💬 AI小幫手</h1>
 </div>
 """
 
-# Default Technical Prompt
+# Default Prompts
 DEFAULT_TECH = """你是一個技術專家。請遵守以下原則：
-1. **按需生成**：只有在使用者要求繪圖或寫程式時才產生代碼，平時請以聊天為主。
-2. **變數名稱禁中化**：程式碼中的變數名與函數名必須使用英文。
-3. **中文僅限標籤**：只有圖表的 title, xlabel, ylabel 可使用繁體中文。
-4. **區塊一體化**：所有繪圖代碼必須寫在同一個代碼區塊內。"""
+1. **按需生成**：只有在使用者要求繪圖或寫程式時才產生完整代碼。
+2. **預裝環境**：系統已預裝 streamlit, matplotlib, graphviz, networkx, seaborn, scipy, pandas, pillow。
+3. **區域化語言** : 台灣繁體中文。
+4. **繪圖規範**：變數用英文，標籤可用中文，嚴禁使用 plt.show() 或 dot.render(view=True)。"""
+DEFAULT_PERSONA = "語調親切專業，幽默風趣。"
 
-# Default Persona Prompt
-DEFAULT_PERSONA = "使用台灣繁體中文回覆，語調像一個熱心且專業的小幫手。"
-
-# Initialize Cookie Manager
 cookie_manager = stx.CookieManager()
 
-# --- Helper for Rendering Content ---
-def render_content(content, block_id=""):
+def get_history_path():
+    u = st.session_state.get('current_user')
+    if not u: return None
+    os.makedirs("history", exist_ok=True)
+    return f"history/history_{u}.json"
+
+def save_history():
+    path = get_history_path()
+    if path:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(st.session_state.messages, f, ensure_ascii=False, indent=2)
+
+def render_content(content, block_id="", is_streaming=False):
     if not content or content.strip() == "": return
-    pattern = r"(?:```(mermaid|dot|graphviz|python|py|python3|)\b(.*?)\n?```|<(mermaid|dot|graphviz|python|py|python3)>(.*?)</\3>)"
+    clean_content = content.replace("▌", "")
+    pattern = r"(?:```(mermaid|dot|graphviz|python|py|python3|)\b(.*?)(?:```|$)|<(mermaid|dot|graphviz|python|py|python3)>(.*?)(?:</\3>|$))"
     last_idx = 0
-    matches = list(re.finditer(pattern, content, flags=re.DOTALL | re.IGNORECASE))
-    if not matches:
-        st.markdown(content); return
-    for match in matches:
+    for match in re.finditer(pattern, clean_content, flags=re.DOTALL | re.IGNORECASE):
         start, end = match.span()
-        if pre := content[last_idx:start].strip(): st.markdown(pre)
+        if pre := clean_content[last_idx:start].strip(): st.markdown(pre)
         lang = (match.group(1) or match.group(3) or "").lower().strip()
         code = (match.group(2) or match.group(4) or "").strip()
         if lang in ["py", "python3"]: lang = "python"
-        if lang == "" and any(ind in code.lower() for ind in ["plt.", "matplotlib", "sns."]): lang = "python"
+        if lang == "" and any(ind in code.lower() for ind in ["plt.", "matplotlib", "sns.", "nx.", "networkx"]): lang = "python"
         
         if lang == "mermaid":
             st.components.v1.html(
@@ -66,73 +79,75 @@ def render_content(content, block_id=""):
         elif lang in ["dot", "graphviz"]:
             st.graphviz_chart(code, use_container_width=True)
         elif lang == "python":
-            st.code(code, language="python")
-            if any(ind in code.lower() for ind in ["plt.", "matplotlib", "fig", "dot.", "graphviz", "digraph", "sns."]):
-                btn_key = f"plot_btn_{hashlib.md5((code + block_id).encode()).hexdigest()[:8]}"
-                if st.button("📈 執行並顯示圖表", key=btn_key):
+            st.code(code, language="python", line_numbers=True)
+            if not is_streaming and any(ind in code.lower() for ind in ["plt.", "matplotlib", "fig", "dot.", "graphviz", "sns.", "nx.", "networkx"]):
+                result_key = hashlib.md5((code + block_id).encode()).hexdigest()[:12]
+                if st.button("📈 執行並顯示圖表", key=f"btn_{result_key}"):
                     try:
-                        import numpy as np, pandas as pd, graphviz
+                        import numpy as np, pandas as pd, graphviz, networkx as nx, seaborn as sns
                         from datetime import datetime, timedelta
                         plt.rcParams['font.sans-serif'] = ['WenQuanYi Micro Hei', 'Arial Unicode MS', 'sans-serif']
                         plt.rcParams['axes.unicode_minus'] = False
-                        exec_code = textwrap.dedent(code)
+                        fixed_code = code
+                        for open_b, close_b in [('[', ']'), ('(', ')'), ('{', '}')]:
+                            if fixed_code.count(open_b) > fixed_code.count(close_b): fixed_code += close_b
+                        exec_code = textwrap.dedent(fixed_code)
                         exec_code = re.sub(r"plt\.show\(.*\)", "", exec_code)
+                        exec_code = re.sub(r"\.render\(.*view\s*=\s*True.*\)", ".render()", exec_code)
                         exec_code = re.sub(r"\.render\(.*\)", "", exec_code)
-                        alias_prefix = """
-import graphviz, matplotlib.pyplot as plt, numpy as np, pandas as pd
-from datetime import datetime, timedelta
-_v = locals().copy()
-if '月份' in _v: months = month = x = _v['月份']
-if '氣溫' in _v: temperatures = temperature = temp = y = _v['氣溫']
-_p = graphviz.Digraph(); _o = _p.attr
-def _fa(*a, **k):
-    if len(a)==2 and a[0]=='label' and 'graph' not in k: return _o('graph', label=a[1])
-    return _o(*a, **k)
-_p.attr = _fa
-class _DF: def __new__(cls, *args, **kw): return _p
-graphviz.Digraph = _DF; dot = digraph = _p
-"""
                         plt.close('all'); plt.clf()
-                        ls = {"plt": plt, "np": np, "pd": pd, "datetime": datetime, "timedelta": timedelta, "graphviz": graphviz, "st": st}
-                        exec(alias_prefix + "\n" + exec_code, {}, ls)
-                        if 'dot' in ls or 'digraph' in ls: st.graphviz_chart(ls.get('dot') or ls.get('digraph'))
-                        else: st.pyplot(plt.gcf())
-                    except Exception as e: st.error(f"❌ 執行錯誤: {e}")
-                    finally: plt.close('all')
-        else: st.code(code, language=lang or "text")
+                        namespace = {"plt": plt, "np": np, "pd": pd, "st": st, "nx": nx, "sns": sns, "datetime": datetime, "timedelta": timedelta, "graphviz": graphviz}
+                        exec(exec_code, namespace)
+                        gv_objs = [v for k, v in namespace.items() if hasattr(v, 'source') and isinstance(v, (graphviz.Digraph, graphviz.Graph))]
+                        if gv_objs:
+                            img_bytes = gv_objs[-1].pipe(format='png')
+                            st.session_state.execution_results[result_key] = {"type": "gv", "data": img_bytes, "obj": gv_objs[-1]}
+                        else:
+                            buf = io.BytesIO()
+                            plt.savefig(buf, format="png", bbox_inches='tight')
+                            st.session_state.execution_results[result_key] = {"type": "plt", "data": buf.getvalue()}
+                    except Exception as e:
+                        print(traceback.format_exc())
+                        st.error(f"❌ 執行錯誤: {e}")
+                    finally:
+                        plt.close('all'); gc.collect()
+                if result_key in st.session_state.execution_results:
+                    res = st.session_state.execution_results[result_key]
+                    st.divider()
+                    if res["type"] == "gv": st.graphviz_chart(res["obj"], use_container_width=True)
+                    else: st.image(res["data"], use_container_width=True)
+                    st.download_button(label="💾 下載圖片 (PNG)", data=res["data"], file_name=f"chart_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png", mime="image/png", key=f"dl_{result_key}")
+        else: st.code(code, language=lang or "text", line_numbers=True)
         last_idx = end
-    if post := content[last_idx:].strip(): st.markdown(post)
+    if post := clean_content[last_idx:].strip(): st.markdown(post + ("▌" if is_streaming else ""))
 
 # --- State ---
 if "password_correct" not in st.session_state: st.session_state.password_correct = False
 if "messages" not in st.session_state: st.session_state.messages = []
+if "execution_results" not in st.session_state: st.session_state.execution_results = {}
 if "is_generating" not in st.session_state: st.session_state.is_generating = False
 if "tech_prompt" not in st.session_state: st.session_state.tech_prompt = DEFAULT_TECH
 if "user_prompt" not in st.session_state: st.session_state.user_prompt = DEFAULT_PERSONA
 if "models_hiding" not in st.session_state: st.session_state.models_hiding = []
+if "default_model" not in st.session_state: st.session_state.default_model = None
 if "sync_count" not in st.session_state: st.session_state.sync_count = 0
 if "file_content" not in st.session_state: st.session_state.file_content = ""
 
-def get_history_path():
-    u = st.session_state.get('current_user')
-    return f"history_{u}.json" if u else None
-
-def save_history():
-    path = get_history_path()
-    if path:
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(st.session_state.messages, f, ensure_ascii=False, indent=2)
-
-# --- Auth Persistence ---
+# --- Persistence ---
 if not st.session_state.password_correct:
     all_c = cookie_manager.get_all()
     if all_c and "current_user" in all_c:
         u = all_c["current_user"]
         st.session_state.password_correct, st.session_state.current_user = True, u
-        st.session_state.sync_count = 0
-        if os.path.exists(f"history_{u}.json"):
-            with open(f"history_{u}.json", "r") as f: st.session_state.messages = json.load(f)
-        for k in ["tech_prompt", "user_prompt", "models_hiding"]:
+        # v1.4.9: Recovered Migration Logic
+        path = get_history_path()
+        if path and os.path.exists(path):
+            with open(path, "r") as f: st.session_state.messages = json.load(f)
+        elif os.path.exists(f"history_{u}.json"): # Check old root folder
+            with open(f"history_{u}.json", "r") as f: 
+                st.session_state.messages = json.load(f)
+                save_history() # Migrate to history/ folder
+        for k in ["tech_prompt", "user_prompt", "models_hiding", "default_model"]:
             v = all_c.get(k)
             if v:
                 if k == "models_hiding": st.session_state[k] = json.loads(v)
@@ -140,119 +155,79 @@ if not st.session_state.password_correct:
     else:
         if st.session_state.sync_count < 2:
             st.session_state.sync_count += 1
-            with st.spinner("🔄 同步狀態中..."): time.sleep(0.8); st.rerun()
+            time.sleep(0.8); st.rerun()
 
 if not st.session_state.get("password_correct"):
     st.markdown("<h1>🔐 AI 系統登入</h1>", unsafe_allow_html=True)
-    u_in, p_in = st.text_input("帳號"), st.text_input("密碼", type="password")
-    if st.button("進入系統"):
-        if u_in in st.secrets["passwords"] and p_in == st.secrets["passwords"][u_in]:
-            st.session_state.password_correct, st.session_state.current_user = True, u_in
-            cookie_manager.set("current_user", u_in, expires_at=datetime.datetime.now() + datetime.timedelta(days=7))
-            st.rerun()
+    with st.form("login_form"):
+        u_in = st.text_input("帳號", key="login_username")
+        p_in = st.text_input("密碼", type="password", key="login_password")
+        if st.form_submit_button("進入系統", use_container_width=True):
+            if u_in in st.secrets["passwords"] and p_in == st.secrets["passwords"][u_in]:
+                st.session_state.password_correct, st.session_state.current_user = True, u_in
+                expiry = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=14)
+                cookie_manager.set("current_user", u_in, expires_at=expiry)
+                st.rerun()
+            else: st.error("錯誤")
     st.stop()
 
-# --- Sidebar ---
+# --- Combined UI ---
 with st.sidebar:
-    if st.session_state.is_generating:
-        if st.button("🛑 停止生成 (Stop Running)", type="primary", use_container_width=True):
-            st.session_state.is_generating = False
-            st.rerun()
-        st.divider()
-
-    col1, col2 = st.columns([2, 1])
-    with col1: st.write(f"👤 **{st.session_state.current_user}**")
-    with col2:
-        if st.button("🚪 登出"):
-            cookie_manager.delete("current_user")
-            st.session_state.password_correct = False
-            st.session_state.sync_count = 5
-            st.rerun()
-            
+    col_u, col_l = st.columns([4, 1])
+    with col_u: st.write(f"👤 **{st.session_state.current_user}**")
+    with col_l:
+        if st.button("🚪", help="登出系統"):
+            cookie_manager.delete("current_user"); st.session_state.password_correct = False; st.rerun()
     url = st.text_input("Ollama Host", os.getenv("OLLAMA_HOST", "http://localhost:11434")).strip().rstrip("/")
-    try: all_models = [m['name'] for m in requests.get(f"{url}/api/tags").json().get('models', [])]
+    try:
+        resp = requests.get(f"{url}/api/tags", timeout=5)
+        all_models = [m['name'] for m in resp.json().get('models', [])]
     except: all_models = []
-    
-    st.subheader("� 檔案上傳 (Knowledge)")
-    uploaded_file = st.file_uploader("上傳 PDF, Word, CSV 或純文字檔", type=["pdf", "docx", "txt", "csv", "xlsx"])
+    st.subheader("📁 檔案上傳")
+    uploaded_file = st.file_uploader("文件內容", type=["pdf", "docx", "txt", "csv", "xlsx"])
     if uploaded_file:
         try:
             if uploaded_file.name.endswith(".pdf"):
-                reader = PdfReader(uploaded_file)
-                st.session_state.file_content = "\n".join([page.extract_text() for page in reader.pages])
+                st.session_state.file_content = "\n".join([p.extract_text() for p in PdfReader(uploaded_file).pages])
             elif uploaded_file.name.endswith(".docx"):
-                doc = Document(uploaded_file)
-                st.session_state.file_content = "\n".join([para.text for para in doc.paragraphs])
-            elif uploaded_file.name.endswith(".csv"):
-                df = pd.read_csv(uploaded_file)
-                st.session_state.file_content = df.to_string()
-            elif uploaded_file.name.endswith(".xlsx"):
-                df = pd.read_excel(uploaded_file)
-                st.session_state.file_content = df.to_string()
-            else:
-                st.session_state.file_content = uploaded_file.read().decode("utf-8")
-            st.success(f"已讀取檔案: {uploaded_file.name}")
-        except Exception as e:
-            st.error(f"檔案讀取失敗: {e}")
-    else:
-        st.session_state.file_content = ""
-
-    st.subheader("�🛠️ 管理")
-    sel_h = st.multiselect("隱藏模型清單", sorted(all_models), default=st.session_state.models_hiding)
-    if st.button("更新設定"):
-        st.session_state.models_hiding = sel_h
-        cookie_manager.set("models_hiding", json.dumps(sel_h), expires_at=datetime.datetime.now() + datetime.timedelta(days=7))
-        st.rerun()
-
+                st.session_state.file_content = "\n".join([p.text for p in Document(uploaded_file).paragraphs])
+            else: st.session_state.file_content = uploaded_file.read().decode("utf-8")
+        except: pass
     visible = [m for m in all_models if m not in st.session_state.models_hiding]
-    sel_model = st.selectbox("選模型", sorted(visible or all_models))
+    sel_model = st.selectbox("選模型", visible, index=visible.index(st.session_state.default_model) if st.session_state.default_model in visible else 0)
+    if st.button("📌 設為預設模型"):
+        st.session_state.default_model = sel_model
+        cookie_manager.set("default_model", sel_model, expires_at=datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=30))
+        st.success(f"已預設: {sel_model}")
     st.divider()
-    with st.expander("⚙️ 技術架構規範 (Technical)", expanded=False):
-        tp = st.text_area("設定技術準則", st.session_state.tech_prompt, height=220, label_visibility="collapsed")
-        if tp != st.session_state.tech_prompt:
-            st.session_state.tech_prompt = tp
-            cookie_manager.set("tech_prompt", tp, expires_at=datetime.datetime.now() + datetime.timedelta(days=7))
-    with st.expander("🎭 說話風格人格 (Persona)", expanded=False):
-        up = st.text_area("設定風格人格", st.session_state.user_prompt, height=180, label_visibility="collapsed")
-        if up != st.session_state.user_prompt:
-            st.session_state.user_prompt = up
-            cookie_manager.set("user_prompt", up, expires_at=datetime.datetime.now() + datetime.timedelta(days=7))
+    with st.expander("⚙️ 技術/風格設定"):
+        tp = st.text_area("Tech", st.session_state.tech_prompt, height=150)
+        up = st.text_area("Persona", st.session_state.user_prompt, height=150)
+        if st.button("儲存設定"):
+            st.session_state.tech_prompt, st.session_state.user_prompt = tp, up
+            cookie_manager.set("tech_prompt", tp, expires_at=datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=14))
+            cookie_manager.set("user_prompt", up, expires_at=datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=14)); st.success("已儲存")
     if st.button("🗑️ 清空紀錄"): 
-        st.session_state.messages = []; save_history(); st.rerun()
+        st.session_state.messages = []; st.session_state.execution_results = {}
+        save_history(); gc.collect(); st.rerun()
 
-# --- Main Layout ---
 st.markdown(TITLE_HTML, unsafe_allow_html=True)
 for idx, m in enumerate(st.session_state.messages):
     with st.chat_message(m["role"]): render_content(m["content"], f"m_{idx}")
 
-# --- Generation Logic ---
 if st.session_state.is_generating:
     with st.chat_message("assistant"):
-        ai_msg_placeholder = st.empty()
-        if st.button("🛑 停止生成 (Stop Running)", type="primary", use_container_width=True):
-            st.session_state.is_generating = False
-            st.rerun()
-            
+        msg_area = st.empty()
+        if st.button("🛑 停止生成", type="secondary"):
+            st.session_state.is_generating = False; st.rerun()
         with st.status("AI 運算中...", expanded=True) as status:
             f_actual = ""
-            # Inject File Content if exists
-            context_prefix = ""
-            if st.session_state.file_content:
-                context_prefix = f"[附帶檔案內容作為參考]:\n{st.session_state.file_content}\n\n"
-            
-            comb = f"{st.session_state.tech_prompt}\n\n{st.session_state.user_prompt}"
-            msgs = [{"role": "system", "content": comb}]
+            ctx = f"[參考文件]:\n{st.session_state.file_content}\n\n" if st.session_state.file_content else ""
+            msgs = [{"role": "system", "content": f"{st.session_state.tech_prompt}\n\n{st.session_state.user_prompt}"}]
             for m in st.session_state.messages[:-1]: msgs.append({"role": m["role"], "content": m["content"]})
-            
-            # Use current prompt with context
-            last_user_msg = st.session_state.pending_prompt
-            if context_prefix:
-                last_user_msg = context_prefix + last_user_msg
-            
-            msgs.append({"role": "user", "content": last_user_msg})
-            
+            msgs.append({"role": "user", "content": ctx + st.session_state.pending_prompt})
             try:
-                with requests.post(f"{url}/api/chat", json={"model": sel_model, "messages": msgs, "stream": True}, stream=True) as r:
+                with requests.post(f"{url}/api/chat", json={"model": sel_model, "messages": msgs, "stream": True}, stream=True, timeout=60) as r:
                     for line in r.iter_lines():
                         if not st.session_state.is_generating: break
                         if line:
@@ -260,17 +235,16 @@ if st.session_state.is_generating:
                             ct = resp.get("content", "")
                             if ct:
                                 f_actual += ct
-                                ai_msg_placeholder.markdown(f_actual + "▌")
+                                with msg_area.container(): render_content(f_actual, is_streaming=True)
                 status.update(label="完成", state="complete", expanded=False)
-            except Exception as e: st.error(f"Error: {e}"); status.update(label="失敗", state="error")
-            
-            if st.session_state.is_generating:
-                st.session_state.messages.append({"role": "assistant", "content": f_actual})
-                save_history()
-            st.session_state.is_generating = False
-            st.rerun()
-else:
+            except Exception as e:
+                st.error(f"Error: {e}"); status.update(label="失敗", state="error")
+            finally:
+                if st.session_state.is_generating:
+                    st.session_state.messages.append({"role": "assistant", "content": f_actual}); save_history()
+                st.session_state.is_generating = False; gc.collect(); st.rerun()
+
+if not st.session_state.is_generating:
     if p := st.chat_input("發送訊息..."):
         st.session_state.is_generating, st.session_state.pending_prompt = True, p
-        st.session_state.messages.append({"role": "user", "content": p})
-        st.rerun()
+        st.session_state.messages.append({"role": "user", "content": p}); st.rerun()

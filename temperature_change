@@ -1,0 +1,14 @@
+digraph {
+	"中国" [label="中国"]
+	"印度" [label="印度"]
+	"美国" [label="美国"]
+	"印度尼西亚" [label="印度尼西亚"]
+	"巴基斯坦" [label="巴基斯坦"]
+	"孟加拉国" [label="孟加拉国"]
+	"中国" -> "美国" [style=dotted]
+	"中国" -> "印度" [style=dashed]
+	"中国" -> "美国" [style=dashed]
+	"中国" -> "印度尼西亚" [style=dashed]
+	"中国" -> "巴基斯坦" [style=dashed]
+	"中国" -> "孟加拉国" [style=dashed]
+}

@@ -1,28 +1,36 @@
-# # version: "3.8"
-
 services:
   ollama:
     image: ollama/ollama:latest
     container_name: ollama
-    volumes:
-      - ollama_data:/root/.ollama
     ports:
       - "11434:11434"
-    deploy:
-      resources:
-        limits:
-          cpus: '3.5'
-          memory: 20G
+    volumes:
+      - ./ollama_data:/root/.ollama
+    networks:
+      - ai-chat
+    restart: always
 
-  ai-webui:
+  webui:
     build: .
     container_name: ai_webui
     ports:
       - "8501:8501"
     environment:
       - OLLAMA_HOST=http://ollama:11434
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # 專案程式碼
+      - .:/app
+      # 本次優化：明確映射資料資料夾
+      - ./history:/app/history
+      - ./logs:/app/logs
+      - ./.streamlit:/app/.streamlit
     depends_on:
       - ollama
+    networks:
+      - ai-chat
+    restart: always
 
-volumes:
-  ollama_data:
+networks:
+  ai-chat:
+    driver: bridge

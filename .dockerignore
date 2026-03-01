@@ -1,0 +1,24 @@
+# 核心：絕對不要搬移模型資料 (這就是那 3GB 的來源)
+ollama_data/
+
+# 忽視日誌與歷史紀錄
+logs/
+history_*.json
+
+# 忽視 Python 虛擬環境與緩存
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 忽視 IDE 與 Git 設定
+.git/
+.gitignore
+.vscode/
+.idea/
+.DS_Store
+
+# 忽視 Streamlit 本機配置
+.streamlit/config.toml
+.streamlit/secrets.toml

@@ -1,4 +1,4 @@
-streamlit
+streamlit>=1.31.0
 requests
 PyPDF2
 python-docx
@@ -8,3 +8,6 @@ openpyxl
 extra-streamlit-components
 matplotlib
 graphviz
+networkx
+seaborn
+scipy

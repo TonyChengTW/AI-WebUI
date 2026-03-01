@@ -1,0 +1,128 @@
+2026-03-01 04:15:33.793 "server.folderWatcherType" is not a valid config option. If you previously had this config option set, it may have been removed.
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://172.20.0.3:8501
+  External URL: http://122.116.18.33:8501
+
+[AUTH] User admin login successful
+[USER] Input captured: hi...
+[OLLAMA] Prompting model: llama3.2:3b
+[OLLAMA] Prompting model: llama3.2:3b
+[OLLAMA] Prompting model: llama3.2:3b
+[USER] Input captured: 幫我用 Graphviz 畫2024溫度變化圖...
+[OLLAMA] Prompting model: llama3.2:3b
+[PLOT] Executing block: m_3
+[ERROR] Plot failed: invalid syntax (<string>, line 12)
+[PLOT] Executing block: m_3
+[ERROR] Plot failed: invalid syntax (<string>, line 12)
+[PLOT] Executing block: m_3
+[ERROR] Plot failed: invalid syntax (<string>, line 12)
+[PLOT] Executing block: m_3
+[ERROR] Plot failed: invalid syntax (<string>, line 12)
+2026-03-01 04:24:35.187 "server.folderWatcherType" is not a valid config option. If you previously had this config option set, it may have been removed.
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://172.20.0.3:8501
+  External URL: http://122.116.18.33:8501
+
+2026-03-01 04:25:27.495 "server.folderWatcherType" is not a valid config option. If you previously had this config option set, it may have been removed.
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://172.20.0.3:8501
+  External URL: http://122.116.18.33:8501
+
+[AUTH] User admin login successful
+[USER] Input captured: 畫圖...
+[OLLAMA] Prompting model: llama3.2:3b
+[USER] Input captured: 畫一張世界國家人口比例圖，Pie chart...
+[OLLAMA] Prompting model: llama3.2:3b
+[PLOT] Executing block: m_3
+[ERROR] Plot failed: invalid syntax (<string>, line 12)
+2026-03-01 04:31:19.191 "server.folderWatcherType" is not a valid config option. If you previously had this config option set, it may have been removed.
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://172.20.0.3:8501
+  External URL: http://122.116.18.33:8501
+
+[AUTH] User admin login successful
+[USER] Input captured: 畫一張全世界人口的國家佔比 Pie Chart...
+[OLLAMA] Prompting model: llama3.2:3b
+[PLOT] Executing block: m_1
+[ERROR] Plot failed: invalid syntax (<string>, line 12)
+2026-03-01 04:36:58.110 "server.folderWatcherType" is not a valid config option. If you previously had this config option set, it may have been removed.
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://172.20.0.3:8501
+  External URL: http://122.116.18.33:8501
+
+[AUTH] Login success: admin
+[PLOT] Running block m_1
+[ERROR] Plot failed: name 'country' is not defined
+[PLOT] Running block m_3
+[PLOT] Running block m_5
+[ERROR] Plot failed: 'Digraph' object has no attribute 'label'
+[PLOT] Running block m_7
+[ERROR] Plot failed: 'Digraph' object has no attribute 'set_attr'
+2026-03-01 05:00:24.246 Uncaught app execution
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 129, in exec_func_with_error_handling
+    result = func()
+  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 689, in code_to_exec
+    exec(code, module.__dict__)  # noqa: S102
+  File "/app/app.py", line 220, in <module>
+    cookie_manager.set("user_prompt", up, expires_at=datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=14))
+  File "/usr/local/lib/python3.10/site-packages/extra_streamlit_components/CookieManager/__init__.py", line 71, in set
+    self.cookie_manager(
+  File "/usr/local/lib/python3.10/site-packages/streamlit/components/v1/custom_component.py", line 57, in __call__
+    return self.create_instance(
+  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/metrics_util.py", line 532, in wrapped_func
+    result = non_optional_func(*args, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/streamlit/components/v1/custom_component.py", line 214, in create_instance
+    return_value = marshall_component(dg, element)
+  File "/usr/local/lib/python3.10/site-packages/streamlit/components/v1/custom_component.py", line 174, in marshall_component
+    computed_id = compute_and_register_element_id(
+  File "/usr/local/lib/python3.10/site-packages/streamlit/elements/lib/utils.py", line 265, in compute_and_register_element_id
+    _register_element_id(ctx, element_type, element_id)
+  File "/usr/local/lib/python3.10/site-packages/streamlit/elements/lib/utils.py", line 145, in _register_element_id
+    raise StreamlitDuplicateElementKey(user_key)
+streamlit.errors.StreamlitDuplicateElementKey: There are multiple elements with the same `key='set'`. To fix this, please make sure that the `key` argument is unique for each element you create.
+[PLOT] Running block m_9
+[ERROR] Plot failed: [Errno 2] No such file or directory: 'xdg-open'
+2026-03-01 05:06:01.477 "server.folderWatcherType" is not a valid config option. If you previously had this config option set, it may have been removed.
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://172.20.0.3:8501
+  External URL: http://122.116.18.33:8501
+
+[AUTH] Login success: admin
+[PLOT] Running block m_1
+[PLOT] Running block m_3
+[ERROR] Plot failed: No module named 'networkx'
+2026-03-01 05:35:00.994 "server.folderWatcherType" is not a valid config option. If you previously had this config option set, it may have been removed.
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://172.20.0.3:8501
+  External URL: http://122.116.18.33:8501
+
+2026-03-01 05:50:11.799 "server.folderWatcherType" is not a valid config option. If you previously had this config option set, it may have been removed.
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://172.20.0.3:8501
+  External URL: http://122.116.18.33:8501
+

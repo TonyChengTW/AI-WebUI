@@ -1,5 +1,7 @@
 [server]
 enableWebsocketCompression = false
+# 徹底停用對日誌目錄的監控，防止無限迴圈
+folderWatcherType = "none"
 
 [browser]
 gatherUsageStats = false
@@ -8,4 +10,5 @@ gatherUsageStats = false
 showErrorDetails = true
 
 [logger]
-level = "debug"
+# 將 Streamlit 內部日誌調低，避免噴出檔案監控細節
+level = "info"

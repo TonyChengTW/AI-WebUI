@@ -1,0 +1,10 @@
+[
+  {
+    "role": "user",
+    "content": "畫出Server三層式架構圖，包含網路、主機、Storage、AWS"
+  },
+  {
+    "role": "assistant",
+    "content": ""
+  }
+]
