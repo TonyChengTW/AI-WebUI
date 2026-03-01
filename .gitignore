@@ -3,3 +3,5 @@ DS_Store
 **/.DS_Store
 __pycache__/
 ollama_data/
+logs/
+history/
